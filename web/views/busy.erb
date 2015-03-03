@@ -21,7 +21,7 @@
     <th><%= t('Busy') %></th>
     <th>&nbsp;</th>
   </thead>
-  <% Sidekiq::ProcessSet.new.each do |process| %>
+  <% processes.each do |process| %>
     <tr>
       <td width="50%">
         <%= "#{process['hostname']}:#{process['pid']}" %>
@@ -39,8 +39,7 @@
       <td>
         <div class="btn-group pull-right">
           <form method="POST">
-            <input type="hidden" name="hostname" value="<%= process['hostname'] %>"/>
-            <input type="hidden" name="pid" value="<%= process['pid'] %>"/>
+            <input type="hidden" name="identity" value="<%= process['identity'] %>"/>
             <button class="btn btn-warn" type="submit" name="quiet" value="1"><%= t('Quiet') %></button>
             <button class="btn btn-danger" type="submit" name="stop" value="1"><%= t('Stop') %></button>
           </form>
@@ -66,7 +65,7 @@
     <th><%= t('Arguments') %></th>
     <th><%= t('Started') %></th>
   </thead>
-  <% workers.each_with_index do |(process, thread, msg), index| %>
+  <% workers.each do |process, thread, msg| %>
     <% job = Sidekiq::Job.new(msg['payload']) %>
     <tr>
       <td><%= process %></td>

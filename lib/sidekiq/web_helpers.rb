@@ -38,12 +38,12 @@ module Sidekiq
       end
     end
 
-    def workers_size
-      @workers_size ||= workers.size
-    end
-
     def workers
       @workers ||= Sidekiq::Workers.new
+    end
+
+    def processes
+      @processes ||= Sidekiq::ProcessSet.new
     end
 
     def stats
@@ -65,7 +65,7 @@ module Sidekiq
     end
 
     def namespace
-      @@ns ||= Sidekiq.redis {|conn| conn.respond_to?(:namespace) ? conn.namespace : nil }
+      @@ns ||= Sidekiq.redis { |conn| conn.respond_to?(:namespace) ? conn.namespace : nil }
     end
 
     def redis_info
@@ -89,7 +89,7 @@ module Sidekiq
     end
 
     def current_status
-      workers_size == 0 ? 'idle' : 'active'
+      workers.size == 0 ? 'idle' : 'active'
     end
 
     def relative_time(time)
@@ -110,9 +110,9 @@ module Sidekiq
     # Merge options with current params, filter safe params, and stringify to query string
     def qparams(options)
       options = options.stringify_keys
-      params.merge(options).map { |key, value|
+      params.merge(options).map do |key, value|
         SAFE_QPARAMS.include?(key) ? "#{key}=#{value}" : next
-      }.join("&")
+      end.join("&")
     end
 
     def truncate(text, truncate_after_chars = 2000)
@@ -147,7 +147,7 @@ module Sidekiq
         return number
       end
 
-      options = {:delimiter => ',', :separator => '.'}
+      options = {delimiter: ',', separator: '.'}
       parts = number.to_s.to_str.split('.')
       parts[0].gsub!(/(\d)(?=(\d\d\d)+(?!\d))/, "\\1#{options[:delimiter]}")
       parts.join(options[:separator])
@@ -171,6 +171,16 @@ module Sidekiq
       else
         redirect url
       end
+    end
+
+    def environment_title_prefix
+      environment = Sidekiq.options[:environment] || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+
+      "[#{environment.upcase}] " unless environment == "production"
+    end
+
+    def product_version
+      "Sidekiq v#{Sidekiq::VERSION}"
     end
   end
 end

@@ -1,12 +1,50 @@
 HEAD
 -----------
 
-- Deprecate delay extension for ActionMailer 4.2+ . [#1933]
+- Undeprecate delay extension for ActionMailer 4.2+ . [#2186]
+
+3.3.2
+-----------
+
+- Add Sidekiq::Stats#queues back
+- Allows configuration of dead job set size and timeout [#2173, jonhyman]
+- Refactor scheduler enqueuing so Sidekiq Pro can override it. [#2159]
+
+3.3.1
+-----------
+
+- Dumb down ActionMailer integration so it tries to deliver if possible [#2149]
+- Stringify Sidekiq.default\_worker\_options's keys [#2126]
+- Add random integer to process identity [#2113, michaeldiscala]
+- Log Sidekiq Pro's Batch ID if available [#2076]
+- Refactor Processor Redis usage to avoid redis/redis-rb#490 [#2094]
+- Move /dashboard/stats to /stats.  Add /stats/queues. [moserke, #2099]
+- Add processes count to /stats [ismaelga, #2141]
+- Greatly improve speed of Sidekiq::Stats [ismaelga, #2142]
+- Add better usage text for `sidekiqctl`.
+- `Sidekiq::Logging.with_context` is now a stack so you can set your
+  own job context for logging purposes [grosser, #2110]
+- Remove usage of Google Fonts in Web UI so it loads in China [#2144]
+
+3.3.0
+-----------
+
+- Upgrade to Celluloid 0.16 [#2056]
+- Fix typo for generator test file name [dlackty, #2016]
+- Add Sidekiq::Middleware::Chain#prepend [seuros, #2029]
+
+3.2.6
+-----------
+
+- Deprecate delay extension for ActionMailer 4.2+ . [seuros, #1933]
+- Poll interval tuning now accounts for dead processes [epchris, #1984]
+- Add non-production environment to Web UI page titles [JacobEvelyn, #2004]
 
 3.2.5
 -----------
 
-- Lock Celluloid to 0.15.2 due to bugs in 0.16.0.
+- Lock Celluloid to 0.15.2 due to bugs in 0.16.0.  This prevents the
+  "hang on shutdown" problem with Celluloid 0.16.0.
 
 3.2.4
 -----------

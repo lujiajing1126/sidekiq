@@ -17,14 +17,17 @@ module Sidekiq
         msg = target.public_send(method_name, *args)
         # The email method can return nil, which causes ActionMailer to return
         # an undeliverable empty message.
-        deliver(msg) if msg && (msg.to || msg.cc || msg.bcc) && msg.from
+        if msg
+          deliver(msg)
+        else
+          raise "#{target.name}##{method_name} returned an undeliverable mail object"
+        end
       end
 
       private
 
       def deliver(msg)
         if msg.respond_to?(:deliver_now)
-          ActiveSupport::Deprecation.warn('`ActionMailer.delay.method` is deprecated. Use `ActionMailer.method.deliver_later` instead and configure ActiveJob to use Sidekiq.')
           # Rails 4.2/5.0
           msg.deliver_now
         else

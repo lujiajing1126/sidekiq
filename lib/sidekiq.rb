@@ -10,22 +10,24 @@ require 'sidekiq/redis_connection'
 require 'json'
 
 module Sidekiq
-  NAME = "Sidekiq"
+  NAME = 'Sidekiq'
   LICENSE = 'See LICENSE and the LGPL-3.0 for licensing details.'
 
   DEFAULTS = {
-    :queues => [],
-    :labels => [],
-    :concurrency => 25,
-    :require => '.',
-    :environment => nil,
-    :timeout => 8,
-    :error_handlers => [],
-    :lifecycle_events => {
-      :startup => [],
-      :quiet => [],
-      :shutdown => [],
-    }
+    queues: [],
+    labels: [],
+    concurrency: 25,
+    require: '.',
+    environment: nil,
+    timeout: 8,
+    error_handlers: [],
+    lifecycle_events: {
+      startup: [],
+      quiet: [],
+      shutdown: [],
+    },
+    dead_max_jobs: 10_000,
+    dead_timeout_in_seconds: 180 * 24 * 60 * 60 # 6 months
   }
 
   def self.❨╯°□°❩╯︵┻━┻
@@ -97,7 +99,7 @@ module Sidekiq
   end
 
   def self.default_worker_options=(hash)
-    @default_worker_options = default_worker_options.merge(hash)
+    @default_worker_options = default_worker_options.merge(hash.stringify_keys)
   end
 
   def self.default_worker_options
@@ -146,7 +148,7 @@ module Sidekiq
   #   end
   def self.on(event, &block)
     raise ArgumentError, "Symbols only please: #{event}" unless event.is_a?(Symbol)
-    raise ArgumentError, "Invalid event name: #{event}" unless options[:lifecycle_events].keys.include?(event)
+    raise ArgumentError, "Invalid event name: #{event}" unless options[:lifecycle_events].key?(event)
     options[:lifecycle_events][event] << block
   end
 end
